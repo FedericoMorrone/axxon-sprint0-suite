@@ -1,0 +1,9 @@
+{
+  "name": "axxon-sprint0-suite",
+  "displayName": "Axxon Sprint0 Suite",
+  "version": "0.1.0",
+  "description": "Skills de Sprint 0 de Axxon Consulting para proyectos Dynamics 365 / Power Platform: análisis de requerimientos a partir de RFPs/transcripciones y encuadre contra el Business Process Catalog de Microsoft.",
+  "author": { "name": "Axxon Consulting" },
+  "license": "UNLICENSED",
+  "keywords": ["sprint0", "requirements", "bpc", "d365", "power-platform", "axxon"]
+}
