@@ -9,3 +9,38 @@ Primera versión empaquetada como plugin de Claude Cowork.
   y separado el árbol completo del BPC a `references/bpc-tree.md`.
 - Excluidas deliberadamente: `licensing-analyser`, `rfp-manager`, `d365crm-resoruces-estimator`
   (no son Sprint 0 en la metodología de Axxon).
+
+## v0.2.0 (2026-08-07)
+
+- Nueva skill `refinement-prep`: prepara el brief de una sesión de refinamiento (funcional,
+  técnica, o combinada) para una Épica, con hipótesis de fit-gap y preguntas puntuales —
+  nunca respuestas, nunca afirma cómo trabaja el cliente.
+- Vendorizado `ado_client.py` desde `axxon-ado-connector` (4to consumidor) — uso exclusivo de
+  solo lectura, nunca escribe en Azure DevOps.
+- Nuevo script `fetch_epic_context.py`: trae el estado real de una Épica + sus Stories hijas
+  desde Azure DevOps (por si cambiaron desde que `backlog-seeder` las creó en Fase 0).
+
+## v0.3.0 (2026-08-07)
+
+- Nueva skill `fdd-builder` (renombrada desde `armado-de-fdd` para respetar la convención de
+  nombres en inglés de todo el ecosistema — ver decisión de naming): genera el Documento de
+  Diseño Funcional en Word para un GAP específico, con la plantilla de marca Axxon real.
+  Plantilla neutralizada (cliente/GAP/autor de ejemplo reemplazados por placeholders
+  genéricos), `schema_name()` actualizado a prefijo `axx_`.
+- Fusionada `analisis-funcional-dynamics365` dentro de `d365-requirements-analyst` (Paso 7
+  nuevo: descomposición en Historias de Usuario + Tareas + Gherkin AC + consideraciones D365)
+  — se descartó mantenerlas separadas por solapamiento de triggers.
+- Confirmado: FDD y Blueprint general son documentos independientes, distinto propósito.
+
+## v0.4.0 (2026-08-07)
+
+- Nuevas skills para el ciclo de recalibración de esfuerzo: `backlog-refiner` (escribe
+  Historias reales en ADO reemplazando candidatas, con story points confirmados por el
+  equipo — nunca inventados), `fit-gap-rollup` (agrega clasificación fit/gap, Markdown),
+  `effort-recalibration` (compara peso de Fase 0 vs. real de Fase 1, agregado del proyecto).
+- Vendorizado `ado_client.py` en las 3 (5to, 6to, y 7mo consumidor de `axxon-ado-connector`).
+- `backlog-seeder` (en `axxon-strategize-suite`) ajustado para guardar el peso original de
+  Fase 0 como tag `fase0-peso-{n}` en la Épica — sin esto no había línea base para comparar.
+- Todas las skills nuevas probadas con datos simulados (sin acceso real a Azure DevOps desde
+  el entorno de desarrollo) — validación de sintaxis, lógica de agregación, y casos límite
+  (Épicas sin línea base de Fase 0).

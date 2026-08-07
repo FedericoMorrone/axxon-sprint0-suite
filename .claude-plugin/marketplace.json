@@ -6,7 +6,7 @@
       "name": "axxon-sprint0-suite",
       "description": "Skills de Sprint 0 de Axxon Consulting: análisis de requerimientos multi-fuente y mapeo contra el Business Process Catalog de Microsoft.",
       "source": "./plugins/axxon-sprint0-suite",
-      "version": "0.1.0",
+      "version": "0.4.0",
       "author": { "name": "Axxon Consulting" }
     }
   ]
