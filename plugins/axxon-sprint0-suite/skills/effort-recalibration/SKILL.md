@@ -1,21 +1,22 @@
 ---
 name: effort-recalibration
 description: >
-  Compara el peso estimado en Fase 0 (Kickoff Brief, a nivel de proceso BPC macro) contra la
-  suma real de story points de Fase 1 (Historias de Usuario ya refinadas, escritas por
-  backlog-refiner), agregado de todo el proyecto. Reporta el delta total y por Épica, y marca
-  las Épicas sin línea base de Fase 0. Usar cuando el usuario pida recalibrar el esfuerzo,
-  comparar la estimación inicial contra la real, o entender cuánto se desvió el tamaño del
-  proyecto después del refinamiento. Se corre una sola vez, al cierre de Fase 1 — no por
-  Épica individual. No usar para clasificar cobertura fit/gap (eso es `fit-gap-rollup`, cuyo
-  resultado conviene cruzar con este delta antes de comunicarlo al cliente).
+  Genera el reporte de cierre de Fase 1 como HTML con la marca Axxon 2025 (misma paleta que
+  kickoff-brief y fdd-builder): compara el peso estimado en Fase 0 contra la suma real de
+  story points de Fase 1, agregado de todo el proyecto, y embebe el Fit & Gap final (todas
+  las Historias reales, con su clasificación de cobertura). Usar cuando el usuario pida
+  recalibrar el esfuerzo, cerrar Fase 1, comparar la estimación inicial contra la real, o un
+  reporte final de fit/gap. Se corre una sola vez, al cierre de Fase 1 — no por Épica
+  individual. Para un fit/gap parcial a mitad de proyecto (sin el cruce de esfuerzo), usar
+  `fit-gap-rollup` en su lugar.
 model: sonnet
 ---
 
 # Effort Recalibration — Fase 1 · Axxon Dataverse Agent
 
-Respondés una pregunta concreta al cierre de Sprint 0: **¿cuánto se movió la estimación desde
-que se aprobó la propuesta hasta que el equipo terminó de refinar el backlog?**
+Generás **el documento de cierre de Sprint 0**: un solo HTML con la marca Axxon 2025 que
+responde dos preguntas juntas — ¿cuánto se movió la estimación desde la propuesta hasta el
+refinamiento?, y ¿cómo quedó la cobertura fit/gap final del proyecto?
 
 ## Principio de fondo
 
@@ -24,13 +25,17 @@ Fase 1, cuando todas las Épicas relevantes ya pasaron por `backlog-refiner`. Si
 antes, con Épicas todavía sin refinar, el número va a estar incompleto — señalalo
 explícitamente si detectás Épicas sin Historias reales todavía.
 
-## De dónde salen los dos números
+## De dónde salen los datos
 
-- **Fase 0:** tag `fase0-peso-{n}` que `backlog-seeder` escribe en cada Épica al crearla.
-- **Fase 1:** suma de `Story Points` de las Historias reales (identificables por su tag
-  `fit-gap-*`, que solo `backlog-refiner` escribe) vinculadas a esa Épica.
+- **Peso Fase 0:** tag `fase0-peso-{n}` que `backlog-seeder` escribe en cada Épica al crearla.
+- **Total Fase 1:** suma de `Story Points` de las Historias reales (tag `fit-gap-*`, escrito
+  solo por `backlog-refiner`) vinculadas a esa Épica.
+- **Fit & Gap final:** la clasificación (`fully-covered`/`partially-covered`/`not-covered`)
+  ya embebida en el mismo tag `fit-gap-*` de cada Historia — se lee de la misma consulta que
+  trae los story points, no hace falta una query aparte.
 
-No calculás nada nuevo — solo leés ambos números de Azure DevOps y los comparás.
+No calculás ni clasificás nada nuevo — solo leés lo que ya está en Azure DevOps, lo cruzás, y
+lo presentás junto en un solo documento.
 
 ## Input requerido
 
@@ -39,26 +44,36 @@ No calculás nada nuevo — solo leés ambos números de Azure DevOps y los comp
 ## Flujo
 
 ```bash
-python scripts/build_recalibration.py --organization axxon --project ClienteX
+python scripts/build_recalibration.py --organization axxon --project ClienteX --output Recalibracion-ClienteX.html
 ```
 
 ## Formato de salida
 
-Markdown: tabla por Épica (peso Fase 0, total Fase 1, delta absoluto y porcentual), totales
-del proyecto, y una sección aparte para Épicas sin línea base de Fase 0 (no entran en el
-total — hay que decirlo, no ocultarlo).
+**HTML autocontenido** (CSS y logos embebidos, misma paleta Axxon 2025 que `fdd-builder`:
+Bebas Neue + Segoe UI, azul `#000FC4`, navy `#002060`) con:
+
+- 4 tarjetas de resumen (peso Fase 0, total Fase 1, delta con color según signo, cantidad de
+  Historias refinadas).
+- Tabla de recalibración por Épica, con aviso aparte para las que no tienen línea base.
+- Tabla de Fit & Gap final por Historia (con pills de color por clasificación) + resumen
+  porcentual.
+- Nota explícita conectando ambas tablas — el delta de esfuerzo y la cobertura fit/gap se
+  leen juntos, no aislados.
 
 ## Cómo presentar el resultado
 
-No entregues el número solo. Un delta grande sin contexto genera alarma o falsa tranquilidad
-según el signo. Sugerí siempre cruzarlo con `fit-gap-rollup` — las Épicas con más Historias
-`not-covered`/`partially-covered` son las que más probablemente explican el desvío.
+No entregues el número de delta solo, ni la tabla de fit/gap sola — es exactamente por eso
+que están en el mismo documento ahora. Un delta grande sin contexto genera alarma o falsa
+tranquilidad según el signo; las Épicas con más Historias `not-covered`/`partially-covered`
+en la sección de Fit & Gap son las que más probablemente explican el desvío.
 
 ## Restricciones
 
 - Es de solo lectura contra Azure DevOps — nunca escribe ni modifica nada.
 - Nunca inventás un peso de Fase 0 para una Épica que no lo tiene — la marcás explícitamente
   como "sin línea base" y la excluís del total, no la asumís en cero ni la omitís en silencio.
+- Nunca inventás ni reclasificás fit/gap — si una Historia no tiene el tag `fit-gap-*`, queda
+  como "sin clasificar" en el resumen, no se le asigna una clasificación a criterio propio.
 - No es una skill de fase-por-fase — si el usuario pide el delta de una sola Épica puntual
   antes de que termine Fase 1, aclarale que esta skill está pensada para el cierre agregado, y
   ofrecé calcularlo igual si insiste, dejando claro que es una lectura parcial.

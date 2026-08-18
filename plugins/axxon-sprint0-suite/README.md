@@ -12,7 +12,8 @@ Skills de Sprint 0 de Axxon Consulting para proyectos Dynamics 365 / Power Platf
 | `fdd-builder` | Genera el Documento de Diseño Funcional (FDD) en Word para un GAP específico, a partir de Historias de Usuario ya refinadas — template de marca Axxon bundleado |
 | `backlog-refiner` | Reemplaza en Azure DevOps las Stories candidatas de una Épica (de Fase 0) por las Historias reales, con story points confirmados por el equipo y clasificación fit/gap |
 | `fit-gap-rollup` | Agrega la clasificación fit/gap de todas las Historias reales (de una Épica o de todo el proyecto) en un documento de trabajo |
-| `effort-recalibration` | Compara el peso original de Fase 0 contra la suma real de story points de Fase 1, agregado de todo el proyecto — se corre una vez, al cierre |
+| `effort-recalibration` | Reporte de cierre de Fase 1 como **HTML con marca Axxon 2025**: compara el peso de Fase 0 contra la suma real de Fase 1 y embebe el Fit & Gap final — agregado de todo el proyecto, se corre una vez, al cierre |
+| `blueprint-builder` | **Solution Blueprint** — cierre formal de Fase 1, HTML con marca Axxon 2025, las 10 áreas oficiales del Solution Blueprint Review de Success by Design. Enfoque mixto: 2 áreas auto-completadas desde ADO/`.d365-project.md`, 8 sintetizadas por Claude — nunca deja un área vacía sin preguntar antes |
 
 `d365-requirements-analyst` usa `bpc-analyser` internamente para el cruce contra el BPC (Paso
 3) y el mapeo en la descomposición de Historias (Paso 7). `refinement-prep`, `fit-gap-rollup`,

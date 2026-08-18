@@ -44,3 +44,19 @@ Primera versión empaquetada como plugin de Claude Cowork.
 - Todas las skills nuevas probadas con datos simulados (sin acceso real a Azure DevOps desde
   el entorno de desarrollo) — validación de sintaxis, lógica de agregación, y casos límite
   (Épicas sin línea base de Fase 0).
+
+## v0.5.0 (2026-08-07)
+
+- Nueva skill `blueprint-builder`: genera el **Solution Blueprint** (cierre formal de Fase 1)
+  como HTML con marca Axxon 2025, estructurado según las 10 áreas oficiales del Solution
+  Blueprint Review de Microsoft Success by Design (Program, Application, Data, Integration,
+  Test, Business Process, Security, ALM, Environment & Capacity, Intelligence strategy —
+  confirmadas contra learn.microsoft.com/dynamics365/guidance/fasttrack/solution-workshops).
+- Enfoque mixto: 2 áreas (Business Process, Environment & Capacity) se auto-completan leyendo
+  Azure DevOps y `.d365-project.md`; las otras 8 las sintetiza Claude a partir de Kickoff
+  Brief, FDDs ya generados, notas y transcripciones.
+- Nuevo estado `requiere-intervencion-humana`, distinto del `[Pendiente]` normal de
+  `fdd-builder` — señala explícitamente que Fase 1 no debería darse por cerrada sin resolver
+  esa área. El documento nunca se genera con un área en blanco sin haber preguntado antes.
+- `sprint0-analyst`: handoff a Fase 2 actualizado — el Blueprint ya no es un pendiente, es la
+  skill de cierre real.
