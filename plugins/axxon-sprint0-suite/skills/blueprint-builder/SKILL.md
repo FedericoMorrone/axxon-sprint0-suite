@@ -1,15 +1,8 @@
 ---
 name: blueprint-builder
-description: >
-  Genera el Solution Blueprint — cierre de Fase 1 — como HTML con la marca Axxon 2025,
-  estructurado según las 10 áreas oficiales del Solution Blueprint Review de Microsoft
-  Success by Design (Program, Application, Data, Integration, Test, Business Process,
-  Security, ALM, Environment & Capacity, Intelligence strategy). Combina datos automáticos
-  de Azure DevOps y `.d365-project.md` con contenido sintetizado de Kickoff Brief, FDDs,
-  notas y transcripciones — y señala explícitamente qué áreas requieren intervención humana
-  en vez de dejarlas vacías o inventar contenido. Usar cuando el usuario pida el Solution
-  Blueprint, el documento de cierre de Fase 1, o un Blueprint general de la solución. Es
-  independiente de los FDDs (que detallan un GAP puntual) — este resume el proyecto completo.
+description: >-
+  Genera el Solution Blueprint de cierre de Fase 1 (HTML Axxon, 10 áreas de Success by Design)
+  con datos de ADO y documentos del proyecto, marcando lo que requiere intervención humana.
 model: sonnet
 ---
 

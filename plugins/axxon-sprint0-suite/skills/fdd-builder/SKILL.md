@@ -1,6 +1,8 @@
 ---
 name: fdd-builder
-description: Genera un Documento de Diseño Funcional (FDD) como HTML autocontenido (marca Axxon 2025 — Bebas Neue + Segoe UI, azul #000FC4, navy #002060) para un GAP de Dynamics 365 / Power Platform, a partir de Historias de Usuario ya refinadas (una o varias relacionadas) o de notas/archivos del usuario. Activá SIEMPRE que el usuario mencione "FDD", "Functional Design Document", "Documento de Diseño Funcional", "armar un FDD", "documentar un GAP", o adjunte notas técnicas/funcionales de un GAP pidiendo formalizarlas ("documentar este GAP", "convertir estas historias/notas en FDD"). Es independiente y de distinto propósito al Blueprint general — el FDD detalla UN GAP específico, no resume el proyecto. Completa cada sección con lo que provea el usuario y marca explícitamente lo pendiente/ambiguo/no aplica — nunca inventa contenido.
+description: >-
+  Genera el Documento de Diseño Funcional (FDD) de un GAP como HTML con la marca Axxon. Usar
+  cuando se pida formalizar un GAP o armar un FDD.
 ---
 
 # FDD Builder — Fase 1 · Axxon Dataverse Agent

@@ -1,16 +1,8 @@
 ---
 name: backlog-refiner
-description: >
-  Reemplaza en Azure DevOps las Stories candidatas de una Épica (sembradas por
-  backlog-seeder en Fase 0) por las Historias de Usuario reales, ya refinadas y con story
-  points confirmados por el equipo. Las candidatas quedan en estado Removed (nunca se borran),
-  las Historias reales se crean con puntos, clasificación fit/gap, y descripción completa
-  (tareas + Gherkin AC + consideraciones D365). Usar cuando el usuario pida confirmar el
-  refinamiento de una Épica en Azure DevOps, actualizar el backlog real post-sesión, o
-  registrar las Historias definitivas de una Épica ya refinada. No usar para generar el
-  contenido de las Historias (eso es `d365-requirements-analyst`) ni para desglosar en tasks
-  (eso es `ado-us-planner`, Fase 2). Requiere story points ya definidos por el equipo — nunca
-  los inventa.
+description: >-
+  Reemplaza en ADO los requerimientos candidatos de una Épica por los refinados, con esfuerzo
+  confirmado por el equipo, tags fit-gap y descripción completa.
 model: sonnet
 ---
 
@@ -49,29 +41,40 @@ gruesa — acá ya estamos en territorio de compromiso real.
 
 1. Armá el JSON de Historias a partir del output de `d365-requirements-analyst` — si falta
    algún story point o la clasificación fit/gap, pedíselos al usuario antes de seguir.
-2. Corré primero en `--dry-run` — mostrá qué Stories candidatas se van a marcar Removed y qué
-   Historias nuevas se van a crear, y pedí confirmación explícita antes de ejecutar en serio
-   (es una escritura real, mismo criterio que `backlog-seeder`).
-3. Con la confirmación, corré sin `--dry-run`:
+2. Confirmá el **process template** del proyecto (`Proceso` en `.d365-project.md`, o
+   preguntalo — contrato ADO §9). No asumas Agile.
+3. Corré primero en `--dry-run` — mostrá qué candidatas se van a retirar, qué hijos de la
+   Épica se dejan intactos (ya refinados), y qué requerimientos nuevos se van a crear, y pedí
+   confirmación explícita antes de ejecutar en serio (es una escritura real, mismo criterio
+   que `backlog-seeder`).
+4. Con la confirmación, corré sin `--dry-run`:
 
 ```bash
-python scripts/refine_epic.py --organization axxon --project ClienteX \
+python scripts/refine_epic.py --organization axxon --project ClienteX --process agile \
   --epic-id 1234 --historias-json historias.json
 ```
 
-4. Reportá el resultado: Stories candidatas marcadas Removed (con sus IDs), Historias nuevas
-   creadas (con sus IDs y links), y cualquier error parcial — nunca digas "listo" si algo falló.
+(`--process` es obligatorio: `agile`, `scrum`, `basic` o `cmmi`.)
+
+5. Reportá el resultado: candidatas retiradas (con sus IDs), requerimientos nuevos creados
+   (con sus IDs y links), y cualquier error parcial — nunca digas "listo" si algo falló.
 
 ## Qué pasa con las candidatas viejas
 
-**Nunca se borran** — quedan en estado `Removed` con un comentario explicando que fueron
-reemplazadas por Historias reales de Fase 1. Esto preserva el historial completo: cualquiera
-puede ver después qué candidata genérica de Fase 0 terminó convirtiéndose en qué Historia real.
+**Nunca se borran** — se retiran según el proceso: `Removed` en Agile y Scrum, `Closed` en
+CMMI, y en Basic (que no tiene estado equivalente) quedan en su estado con el tag
+`reemplazada-fase1`; siempre con un comentario explicando que fueron reemplazadas. Esto
+preserva el historial completo.
+
+Solo se tratan como candidatas los hijos de la Épica **sin** tag `fit-gap-*` ni
+`reemplazada-fase1` y no cerrados: correr la skill dos veces sobre la misma Épica no retira
+requerimientos ya refinados.
 
 ## Conexión con las skills de recalibración de esfuerzo
 
-Las Historias que esta skill crea quedan con dos datos clave, consultables después:
-- **Story Points reales** (Fase 1) — vía `Microsoft.VSTS.Scheduling.StoryPoints`.
+Los requerimientos que esta skill crea quedan con dos datos clave, consultables después:
+- **Esfuerzo real** (Fase 1) — en el campo del proceso: StoryPoints (Agile), Effort (Scrum,
+  Basic) o Size (CMMI). Las skills de lectura lo toman de cualquiera de los tres.
 - **Clasificación fit/gap** — vía el tag `fit-gap-{clasificación}`.
 
 Esto es lo que después leen `fit-gap-rollup` (agrega las clasificaciones) y
@@ -82,6 +85,7 @@ guarda en la Épica como tag `fase0-peso-{n}`). Sin esta skill, esas dos no tien
 
 - Nunca escribís sin `--dry-run` primero y sin confirmación explícita del usuario.
 - Nunca inventás story points — es un error de validación explícito, no un default silencioso.
-- Nunca borrás las Stories candidatas — siempre `Removed` con comentario, nunca delete real.
+- Nunca borrás las candidatas — se retiran según el proceso, con comentario, nunca delete real.
+- Nunca asumís el proceso: sin `--process` el script no escribe.
 - No generás el contenido de las Historias — eso ya viene de `d365-requirements-analyst`;
   esta skill solo lo escribe en ADO.

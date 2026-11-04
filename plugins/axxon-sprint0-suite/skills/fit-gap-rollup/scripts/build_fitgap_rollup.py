@@ -18,6 +18,7 @@ import os
 import sys
 
 from ado_client import AdoClient, AdoError
+from process_map import REQUIREMENT_CATEGORY_WIQL, read_effort
 
 FIT_GAP_TAGS = ["fit-gap-fully-covered", "fit-gap-partially-covered", "fit-gap-not-covered"]
 CHILD_LINK_TYPE = "System.LinkTypes.Hierarchy-Forward"
@@ -48,7 +49,7 @@ def fetch_all_stories_with_fitgap(client: AdoClient, project: str) -> list:
     query = f"""
     SELECT [System.Id] FROM WorkItems
     WHERE [System.TeamProject] = '{project}'
-      AND [System.WorkItemType] = 'User Story'
+      AND {REQUIREMENT_CATEGORY_WIQL}
       AND [System.Tags] CONTAINS 'fit-gap-'
     """
     result = client.run_wiql(query)
@@ -86,7 +87,7 @@ def build_markdown(rows: list, scope_label: str) -> str:
     for epic_title, story in rows:
         classification = extract_classification(story.fields.get("System.Tags", "")) or "sin clasificar"
         counts[classification] = counts.get(classification, 0) + 1
-        points = story.fields.get("Microsoft.VSTS.Scheduling.StoryPoints", "—")
+        points = read_effort(story.fields) or "—"
         lines.append(f"| {epic_title} | {story.title} | {classification} | {points} |")
 
     total = sum(counts.values())

@@ -22,6 +22,7 @@ import sys
 from pathlib import Path
 
 from ado_client import AdoClient, AdoError
+from process_map import REQUIREMENT_CATEGORY_WIQL, read_effort
 
 FASE0_PESO_RE = re.compile(r"fase0-peso-(\d+)")
 PARENT_LINK_TYPE = "System.LinkTypes.Hierarchy-Reverse"
@@ -76,7 +77,7 @@ def fetch_refined_stories(client: AdoClient, project: str) -> list:
     query = f"""
     SELECT [System.Id] FROM WorkItems
     WHERE [System.TeamProject] = '{project}'
-      AND [System.WorkItemType] = 'User Story'
+      AND {REQUIREMENT_CATEGORY_WIQL}
       AND [System.Tags] CONTAINS 'fit-gap-'
     """
     result = client.run_wiql(query)
@@ -89,7 +90,7 @@ def aggregate(epics: dict[int, dict], stories: list) -> tuple[dict[int, dict], l
     """Devuelve (epics actualizado con totales de Fase 1, filas de fit/gap por Historia)."""
     fitgap_rows = []
     for s in stories:
-        points = s.fields.get("Microsoft.VSTS.Scheduling.StoryPoints") or 0
+        points = read_effort(s.fields) or 0
         classification = extract_classification(s.fields.get("System.Tags", "")) or "sin clasificar"
         epic_title = "(Épica no encontrada)"
         for rel in s.relations:

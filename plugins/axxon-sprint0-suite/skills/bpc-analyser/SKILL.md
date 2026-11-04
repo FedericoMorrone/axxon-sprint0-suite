@@ -1,14 +1,9 @@
 ---
 name: bpc-analyser
 user-invocable: true
-description: |
-  Business Process Catalog (BPC) Analyzer for Dynamics 365 — maps any functional
-  requirement to its exact position in the Microsoft BPC tree (all 7 levels).
-  Source: Business Process Catalog MAR 2026 (official Microsoft catalog).
-  Use when user asks about "BPC", "business process catalog", "where does this requirement fit",
-  "map this requirement", "what process covers", "BPC tree", "end to end process",
-  "process area", "fit gap", "requirement mapping", or any question about Dynamics 365
-  business process classification.
+description: >-
+  Mapea un requerimiento a su posición en el Business Process Catalog de Microsoft (BPC, 7
+  niveles). Usar para saber dónde encaja un requerimiento, para fit-gap o mapeo de procesos.
 ---
 
 # Business Process Catalog (BPC) Analyzer

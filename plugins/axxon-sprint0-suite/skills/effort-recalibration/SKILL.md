@@ -1,14 +1,8 @@
 ---
 name: effort-recalibration
-description: >
-  Genera el reporte de cierre de Fase 1 como HTML con la marca Axxon 2025 (misma paleta que
-  kickoff-brief y fdd-builder): compara el peso estimado en Fase 0 contra la suma real de
-  story points de Fase 1, agregado de todo el proyecto, y embebe el Fit & Gap final (todas
-  las Historias reales, con su clasificación de cobertura). Usar cuando el usuario pida
-  recalibrar el esfuerzo, cerrar Fase 1, comparar la estimación inicial contra la real, o un
-  reporte final de fit/gap. Se corre una sola vez, al cierre de Fase 1 — no por Épica
-  individual. Para un fit/gap parcial a mitad de proyecto (sin el cruce de esfuerzo), usar
-  `fit-gap-rollup` en su lugar.
+description: >-
+  Reporte de cierre de Fase 1 (HTML Axxon): compara el peso estimado en Fase 0 con el esfuerzo
+  real e incluye el Fit & Gap final. Se corre una vez por proyecto.
 model: sonnet
 ---
 

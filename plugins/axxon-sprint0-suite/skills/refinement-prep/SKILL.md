@@ -1,15 +1,8 @@
 ---
 name: refinement-prep
-description: >
-  Prepara el brief de una sesión de refinamiento (funcional, técnico, o combinada) para una
-  Épica del backlog inicial, previa a que la sesión ocurra. Trae el estado real de la Épica y
-  sus Stories candidatas desde Azure DevOps, expande el proceso BPC macro a sus nodos de
-  detalle con `bpc-analyser`, y genera hipótesis de fit-gap junto con preguntas puntuales para
-  validarlas en la sesión. Usar cuando el usuario pida preparar una sesión de refinamiento,
-  armar la agenda/brief para una reunión de Sprint 0, o preguntar qué llevar a una reunión de
-  fit-gap con el cliente. No usar para analizar lo que salió de una sesión ya ocurrida (eso es
-  `d365-requirements-analyst`, que trabaja con notas/transcripciones posteriores) ni para
-  mapear un requerimiento puntual contra el BPC de forma aislada (`bpc-analyser` directo).
+description: >-
+  Prepara el brief de una sesión de refinamiento de una Épica: estado en ADO, procesos BPC de
+  detalle, hipótesis fit-gap y preguntas para validar con el cliente.
 model: sonnet
 ---
 

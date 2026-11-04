@@ -1,17 +1,9 @@
 ---
 name: d365-requirements-analyst
-description: >
-  Analiza requerimientos para soluciones Microsoft Dynamics 365 a partir de múltiples fuentes:
-  RFP/RFI, notas de reunión, transcripciones de Microsoft Teams, emails, o documentación de
-  solución existente. Consolida y valida los requerimientos contra el Business Process
-  Catalog de Microsoft, la documentación oficial de learn.microsoft.com, el impacto de
-  licenciamiento, y la librería interna de propuestas técnicas de Axxon — y los descompone en
-  Historias de Usuario con tareas y criterios de aceptación en formato Gherkin, listas para
-  backlog. Usar esta skill cuando se provea un RFP, RFI, notas de reunión, o transcripción, se
-  necesite consolidar/validar requerimientos, o se pida convertir requerimientos en historias
-  de usuario, tareas, o criterios de aceptación para Dynamics 365. No usar para tareas de
-  implementación/customización a nivel de código (eso es `dataverse-builder`) ni para preparar
-  una sesión de refinamiento antes de que ocurra (eso es `refinement-prep`).
+description: >-
+  Analiza requerimientos D365 (RFP, notas, transcripciones de Teams, emails) y los convierte
+  en User Stories con tareas y criterios de aceptación Gherkin, validadas contra BPC,
+  Microsoft Learn y licenciamiento.
 ---
 
 # D365 Requirements Analyst

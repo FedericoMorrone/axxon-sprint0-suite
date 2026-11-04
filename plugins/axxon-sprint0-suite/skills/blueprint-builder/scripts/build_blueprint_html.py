@@ -29,6 +29,7 @@ import re
 from pathlib import Path
 
 from ado_client import AdoClient, AdoError
+from process_map import REQUIREMENT_CATEGORY_WIQL
 
 ASSETS_DIR = Path(__file__).parent.parent / "assets"
 FASE0_PESO_RE = re.compile(r"fase0-peso-(\d+)")
@@ -89,7 +90,7 @@ def fetch_business_process_strategy(client: AdoClient, project: str) -> dict:
     story_query = f"""
     SELECT [System.Id] FROM WorkItems
     WHERE [System.TeamProject] = '{project}'
-      AND [System.WorkItemType] = 'User Story'
+      AND {REQUIREMENT_CATEGORY_WIQL}
       AND [System.Tags] CONTAINS 'fit-gap-'
     """
     story_result = client.run_wiql(story_query)

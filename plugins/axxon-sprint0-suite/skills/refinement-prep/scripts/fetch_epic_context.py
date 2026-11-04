@@ -17,6 +17,7 @@ import os
 import sys
 
 from ado_client import AdoClient, AdoError
+from process_map import read_effort
 
 CHILD_LINK_TYPE = "System.LinkTypes.Hierarchy-Forward"
 
@@ -52,7 +53,7 @@ def fetch_epic_context(client: AdoClient, epic_id: int) -> dict:
                 "id": s.id,
                 "title": s.title,
                 "state": s.state,
-                "story_points": s.fields.get("Microsoft.VSTS.Scheduling.StoryPoints"),
+                "story_points": read_effort(s.fields),  # Story Points / Effort / Size según el proceso
                 "description": s.fields.get("System.Description", ""),
                 # Comentarios agregados manualmente desde que backlog-seeder las creó, si los hay:
                 "comment_count": s.fields.get("System.CommentCount", 0),

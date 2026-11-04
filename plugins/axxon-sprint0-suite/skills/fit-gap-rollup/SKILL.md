@@ -1,14 +1,8 @@
 ---
 name: fit-gap-rollup
-description: >
-  Agrega la clasificación fit/gap (fully-covered / partially-covered / not-covered) de todas
-  las Historias de Usuario reales de una Épica o de todo el proyecto, leyendo lo que
-  `backlog-refiner` ya registró en Azure DevOps — no clasifica nada por su cuenta. Genera un
-  documento Markdown con la tabla completa y un resumen de porcentajes por clasificación. Usar
-  cuando el usuario pida un análisis FIT/GAP, un rollup de cobertura, o un resumen de qué
-  proporción del backlog quedó out-of-the-box vs. requiere customización. No usar para
-  clasificar un requerimiento individual (eso ya lo hace `d365-requirements-analyst` al
-  refinarlo) ni para comparar contra la estimación de Fase 0 (eso es `effort-recalibration`).
+description: >-
+  Resume la clasificación fit/gap de los requerimientos de una Épica o del proyecto, leída de
+  Azure DevOps, en un reporte Markdown con porcentajes.
 model: sonnet
 ---
 

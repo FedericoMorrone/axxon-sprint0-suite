@@ -11,8 +11,16 @@ enlazadas a la misma Épica, con:
   - Descripción completa: historia + tareas + criterios de aceptación Gherkin + consideraciones D365
 
 Uso:
-    python refine_epic.py --organization axxon --project ClienteX \
+    python refine_epic.py --organization axxon --project ClienteX --process agile \
         --epic-id 1234 --historias-json historias.json --dry-run
+
+`--process` (agile | scrum | basic | cmmi, o env ADO_PROCESS) es obligatorio: define el tipo
+de requerimiento a crear, el campo de esfuerzo (Story Points / Effort / Size) y cómo se
+retiran las candidatas (Removed en Agile/Scrum; Closed en CMMI; en Basic, sin estado
+equivalente, quedan en su estado con el tag "reemplazada-fase1"). Ver process_map.py.
+
+Solo se retiran como candidatas los hijos de la Épica SIN tag "fit-gap-*" ni
+"reemplazada-fase1" y no cerrados — así correrlo dos veces no retira requerimientos reales.
 
 `historias.json`:
 [
@@ -41,14 +49,16 @@ import os
 import sys
 
 from ado_client import AdoClient, AdoError
+from process_map import REPLACED_TAG, add_process_argument, get_process
 
 CHILD_LINK_TYPE = "System.LinkTypes.Hierarchy-Forward"
 VALID_FIT_GAP = {"fully-covered", "partially-covered", "not-covered"}
 REMOVED_COMMENT = (
-    "Reemplazada en Fase 1 por Historias de Usuario reales, refinadas con el cliente. "
-    "Esta Story candidata era una aproximación genérica de Fase 0 (ver Kickoff Brief) — "
-    "queda en estado Removed en vez de borrarse, para conservar el historial."
+    "Reemplazada en Fase 1 por requerimientos reales, refinados con el cliente. "
+    "Esta candidata era una aproximación genérica de Fase 0 (ver Kickoff Brief) — "
+    "se retira en vez de borrarse, para conservar el historial."
 )
+CLOSED_STATES = {"Removed", "Closed", "Done"}
 
 
 def extract_child_ids(epic_relations: list[dict]) -> list[int]:
@@ -106,15 +116,44 @@ def build_tags(historia: dict) -> str:
     return "; ".join(tags)
 
 
-def refine_epic(client: AdoClient, epic_id: int, historias: list[dict], dry_run: bool) -> dict:
+def is_candidate(item) -> bool:
+    """Candidata de Fase 0 = hijo sin clasificación fit-gap, no retirado y no cerrado."""
+    tags = item.fields.get("System.Tags", "") or ""
+    state = item.fields.get("System.State", "")
+    return "fit-gap-" not in tags and REPLACED_TAG not in tags and state not in CLOSED_STATES
+
+
+def retire_candidate(client: AdoClient, item, process: dict) -> None:
+    """Retira una candidata según el proceso — nunca la borra."""
+    if process["removed_state"]:
+        client.update_work_item(item.id, {
+            "State": process["removed_state"],
+            "System.History": REMOVED_COMMENT,
+        })
+    else:  # Basic: no hay estado equivalente a Removed — se marca con tag y comentario
+        tags = item.fields.get("System.Tags", "") or ""
+        new_tags = f"{tags}; {REPLACED_TAG}" if tags else REPLACED_TAG
+        client.update_work_item(item.id, {
+            "System.Tags": new_tags,
+            "System.History": REMOVED_COMMENT,
+        })
+
+
+def refine_epic(client: AdoClient, epic_id: int, historias: list[dict], dry_run: bool,
+                process: dict) -> dict:
     epic = client.get_work_item(epic_id, expand="relations")
-    candidate_ids = extract_child_ids(epic.relations)
+    children = [client.get_work_item(cid) for cid in extract_child_ids(epic.relations)]
+    candidates = [c for c in children if is_candidate(c)]
+    candidate_ids = [c.id for c in candidates]
+    kept_ids = [c.id for c in children if not is_candidate(c)]
 
     if dry_run:
         return {
             "epic_id": epic_id,
             "epic_title": epic.title,
+            "process_requirement_type": process["requirement_type"],
             "candidates_to_remove": candidate_ids,
+            "children_kept_not_candidates": kept_ids,
             "historias_to_create": [
                 {"titulo": h["titulo"], "story_points": h["story_points"], "fit_gap": h["fit_gap"],
                  "tags": build_tags(h)}
@@ -123,25 +162,22 @@ def refine_epic(client: AdoClient, epic_id: int, historias: list[dict], dry_run:
         }
 
     removed = []
-    for cid in candidate_ids:
+    for item in candidates:
         try:
-            client.update_work_item(cid, {
-                "State": "Removed",
-                "System.History": REMOVED_COMMENT,
-            })
-            removed.append(cid)
+            retire_candidate(client, item, process)
+            removed.append(item.id)
         except AdoError as exc:
-            print(f"  ⚠️  No se pudo marcar #{cid} como Removed: {exc.message}", file=sys.stderr)
+            print(f"  ⚠️  No se pudo retirar la candidata #{item.id}: {exc.message}", file=sys.stderr)
 
     created = []
     for h in historias:
         fields = {
             "Title": h["titulo"],
             "Description": build_story_description(h),
-            "Microsoft.VSTS.Scheduling.StoryPoints": h["story_points"],
+            process["effort_field"]: h["story_points"],
             "Tags": build_tags(h),
         }
-        story = client.create_work_item("User Story", fields)
+        story = client.create_work_item(process["requirement_type"], fields)
         client.link_work_items(parent_id=epic_id, child_id=story.id)
         created.append({"id": story.id, "titulo": h["titulo"], "url": story.url})
 
@@ -160,7 +196,14 @@ def main() -> int:
     parser.add_argument("--epic-id", required=True, type=int)
     parser.add_argument("--historias-json", required=True)
     parser.add_argument("--dry-run", action="store_true")
+    add_process_argument(parser)
     args = parser.parse_args()
+
+    if not args.process:
+        print("ERROR: falta --process (agile | scrum | basic | cmmi) o ADO_PROCESS. Se ve en "
+              "Azure DevOps → Project settings → Process. No se asume Agile.", file=sys.stderr)
+        return 1
+    process = get_process(args.process)
 
     if not args.organization or not args.project:
         print("ERROR: falta --organization/--project o ADO_ORG/ADO_PROJECT.", file=sys.stderr)
@@ -184,7 +227,7 @@ def main() -> int:
     client = AdoClient(organization=args.organization, project=args.project, pat=pat or "dry-run")
 
     try:
-        result = refine_epic(client, args.epic_id, historias, args.dry_run)
+        result = refine_epic(client, args.epic_id, historias, args.dry_run, process)
     except AdoError as exc:
         print(f"ERROR consultando/escribiendo en Azure DevOps: {exc.message}", file=sys.stderr)
         return 1

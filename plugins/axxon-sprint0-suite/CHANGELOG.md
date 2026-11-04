@@ -71,3 +71,26 @@ repo).
   planificar) y `us_tecnica` (→ tag `us-tecnica`). Los tags se escriben juntos separados por
   `; `; `fit-gap-rollup`, `effort-recalibration` y `blueprint-builder` siguen leyendo la
   clasificación igual (búsqueda por substring del tag `fit-gap-*`).
+
+## v0.7.0 (2026-11-04)
+
+- **Process template (hallazgo H-10):** se elimina el supuesto Agile (`User Story` +
+  `StoryPoints`). Ver contrato ADO §9 (`axxon-dataverse-agent/docs/ado-contract.md`).
+  - `process_map.py` vendorizado en las 5 carpetas `scripts/`.
+  - `refine_epic.py`: `--process` obligatorio; crea el requerimiento del proceso con su campo
+    de esfuerzo; retira candidatas según el proceso (Removed / Closed en CMMI / tag
+    `reemplazada-fase1` en Basic). **Fix:** antes retiraba *todos* los hijos de la Épica —
+    correrlo dos veces retiraba requerimientos ya refinados; ahora solo los que no tienen
+    `fit-gap-*` ni `reemplazada-fase1` y no están cerrados.
+  - `build_fitgap_rollup.py`, `build_recalibration.py`, `build_blueprint_html.py`: WIQL por
+    categoría de requerimiento; esfuerzo leído de StoryPoints / Effort / Size.
+  - `fetch_epic_context.py`: esfuerzo leído según el proceso.
+- **`fdd-builder` (hallazgo H-03):** la descripción se cortaba en "…Segoe UI, azul" porque
+  `#000FC4` sin comillas inicia un comentario YAML. Corregido con bloque `>-`.
+- **Descripciones de skills acortadas (hallazgo H-02):** Claude Code carga en cada turno un
+  listado de skills con presupuesto de caracteres (~1% del contexto) y, si se excede,
+  descarta las descripciones de las skills menos usadas — verificado en la documentación
+  oficial y en una sesión real, donde las skills de este paquete aparecían sin descripción
+  (afecta la activación automática). Se reescribieron a < 300 caracteres, caso de uso
+  principal primero, en bloque YAML `>-`. Total de las 35 skills axxon: 26.540 → ~6.400
+  caracteres.
