@@ -37,6 +37,12 @@ gruesa — acá ya estamos en territorio de compromiso real.
 - Lista de Historias refinadas, cada una con: título, descripción, tareas, criterios de
   aceptación (Gherkin), consideraciones D365, **story points**, y **clasificación fit/gap**
   (`fully-covered` / `partially-covered` / `not-covered`).
+- Opcional por Historia (contrato ADO, `axxon-dataverse-agent/docs/ado-contract.md`):
+  - `procode_candidato: true` → tag `procode-candidato`. Es una **hipótesis** de Fase 1
+    (típicamente en GAPs con integración, transaccionalidad o volumen): la decisión real la
+    toma `build-approach-advisor` al planificar la US. Proponela vos cuando las
+    consideraciones D365 lo sugieran, pero confirmala con el usuario.
+  - `us_tecnica: true` → tag `us-tecnica`, para historias técnicas puras (la excepción).
 - Organización y Project de Azure DevOps.
 
 ## Flujo

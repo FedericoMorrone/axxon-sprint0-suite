@@ -25,9 +25,12 @@ Uso:
     ],
     "consideraciones_d365": "Entidad axx_poliza (nueva), lookup a Contact.",
     "story_points": 5,
-    "fit_gap": "partially-covered"
+    "fit_gap": "partially-covered",
+    "procode_candidato": true,   # opcional — hipótesis: probablemente requiere pro-code
+    "us_tecnica": false          # opcional — historia técnica pura (excepción)
   }
 ]
+(En el JSON real, sin los comentarios `#`.)
 """
 
 from __future__ import annotations
@@ -87,7 +90,20 @@ def validate_historias(historias: list[dict]) -> list[str]:
         if fit_gap not in VALID_FIT_GAP:
             errors.append(f"Historia #{i} ({h.get('titulo', '?')}): 'fit_gap' inválido o ausente "
                            f"(debe ser uno de {sorted(VALID_FIT_GAP)})")
+        for flag in ("procode_candidato", "us_tecnica"):
+            if flag in h and not isinstance(h[flag], bool):
+                errors.append(f"Historia #{i} ({h.get('titulo', '?')}): '{flag}' tiene que ser true/false")
     return errors
+
+
+def build_tags(historia: dict) -> str:
+    """Tags del contrato ADO (axxon-dataverse-agent/docs/ado-contract.md §3)."""
+    tags = [f"fit-gap-{historia['fit_gap']}"]
+    if historia.get("procode_candidato"):
+        tags.append("procode-candidato")  # hipótesis de Fase 1, no una decisión
+    if historia.get("us_tecnica"):
+        tags.append("us-tecnica")
+    return "; ".join(tags)
 
 
 def refine_epic(client: AdoClient, epic_id: int, historias: list[dict], dry_run: bool) -> dict:
@@ -100,7 +116,8 @@ def refine_epic(client: AdoClient, epic_id: int, historias: list[dict], dry_run:
             "epic_title": epic.title,
             "candidates_to_remove": candidate_ids,
             "historias_to_create": [
-                {"titulo": h["titulo"], "story_points": h["story_points"], "fit_gap": h["fit_gap"]}
+                {"titulo": h["titulo"], "story_points": h["story_points"], "fit_gap": h["fit_gap"],
+                 "tags": build_tags(h)}
                 for h in historias
             ],
         }
@@ -122,7 +139,7 @@ def refine_epic(client: AdoClient, epic_id: int, historias: list[dict], dry_run:
             "Title": h["titulo"],
             "Description": build_story_description(h),
             "Microsoft.VSTS.Scheduling.StoryPoints": h["story_points"],
-            "Tags": f"fit-gap-{h['fit_gap']}",
+            "Tags": build_tags(h),
         }
         story = client.create_work_item("User Story", fields)
         client.link_work_items(parent_id=epic_id, child_id=story.id)

@@ -60,3 +60,14 @@ Primera versión empaquetada como plugin de Claude Cowork.
   esa área. El documento nunca se genera con un área en blanco sin haber preguntado antes.
 - `sprint0-analyst`: handoff a Fase 2 actualizado — el Blueprint ya no es un pendiente, es la
   skill de cierre real.
+
+## v0.6.0 (2026-11-04)
+
+Contrato ADO entre roles (ver `axxon-dataverse-agent/docs/ado-contract.md` y ADR-005 de ese
+repo).
+
+- `backlog-refiner`: campos opcionales por Historia `procode_candidato` (→ tag
+  `procode-candidato`, hipótesis de Fase 1 — la decisión la toma `build-approach-advisor` al
+  planificar) y `us_tecnica` (→ tag `us-tecnica`). Los tags se escriben juntos separados por
+  `; `; `fit-gap-rollup`, `effort-recalibration` y `blueprint-builder` siguen leyendo la
+  clasificación igual (búsqueda por substring del tag `fit-gap-*`).
